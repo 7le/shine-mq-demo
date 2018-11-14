@@ -1,4 +1,4 @@
-package top.arkstack.shine.mq.demo.demo;
+package top.arkstack.shine.mq.demo;
 
 import org.springframework.stereotype.Component;
 import top.arkstack.shine.mq.annotation.DistributedTrans;

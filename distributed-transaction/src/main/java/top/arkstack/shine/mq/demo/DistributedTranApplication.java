@@ -1,4 +1,4 @@
-package top.arkstack.shine.mq.demo.demo;
+package top.arkstack.shine.mq.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
