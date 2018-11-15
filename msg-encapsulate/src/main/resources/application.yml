@@ -3,25 +3,21 @@ spring:
     name: shine-mq-demo
   rabbitmq:
     host: 127.0.0.1
-  redis:
-    timeout: 0
-    host: 127.0.0.1
-    database: 0
 server:
-  port: 5001
+  port: 5000
   undertow:
     accesslog:
-      dir: /logs              # Undertow ÈÕÖ¾´æ·ÅÄ¿Â¼
-      enabled: true           # ÊÇ·ñÆô¶¯ÈÕÖ¾
-      pattern: common         # ÈÕÖ¾¸ñÊ½
-      prefix: access_log      # ÈÕÖ¾ÎÄ¼şÃûÇ°×º
-      suffix: log             # ÈÕÖ¾ÎÄ¼şÃûºó×º
-    max-http-post-size: 0     # HTTP POSTÇëÇó×î´óµÄ´óĞ¡
-    io-threads: 4             # ÉèÖÃIOÏß³ÌÊı£¬ËüÖ÷ÒªÖ´ĞĞ·Ç×èÈûµÄÈÎÎñ£¬ËüÃÇ»á¸ºÔğ¶à¸öÁ¬½Ó£¬Ä¬ÈÏÉèÖÃÃ¿¸öCPUºËĞÄÒ»¸öÏß³Ì
-    worker-threads: 500       # ×èÈûÈÎÎñÏß³Ì³Ø£¬µ±Ö´ĞĞÀàËÆservletÇëÇó×èÈû²Ù×÷£¬undertow»á´ÓÕâ¸öÏß³Ì³ØÖĞÈ¡µÃÏß³Ì£¬ËüµÄÖµÉèÖÃÈ¡¾öÓÚÏµÍ³µÄ¸ºÔØ
-    buffer-size: 1024         # ÒÔÏÂµÄÅäÖÃ»áÓ°Ïìbuffer£¬ÕâĞ©buffer»áÓÃÓÚ·şÎñÆ÷Á¬½ÓµÄIO²Ù×÷,Ã¿¿ébufferµÄ¿Õ¼ä´óĞ¡£¬Ô½Ğ¡µÄ¿Õ¼ä±»ÀûÓÃÔ½³ä·Ö
-    direct-buffers: true      # ÊÇ·ñ·ÖÅäµÄÖ±½ÓÄÚ´æ
+      dir: /logs              # Undertow æ—¥å¿—å­˜æ”¾ç›®å½•
+      enabled: true           # æ˜¯å¦å¯åŠ¨æ—¥å¿—
+      pattern: common         # æ—¥å¿—æ ¼å¼
+      prefix: access_log      # æ—¥å¿—æ–‡ä»¶åå‰ç¼€
+      suffix: log             # æ—¥å¿—æ–‡ä»¶ååç¼€
+    max-http-post-size: 0     # HTTP POSTè¯·æ±‚æœ€å¤§çš„å¤§å°
+    io-threads: 4             # è®¾ç½®IOçº¿ç¨‹æ•°ï¼Œå®ƒä¸»è¦æ‰§è¡Œéé˜»å¡çš„ä»»åŠ¡ï¼Œå®ƒä»¬ä¼šè´Ÿè´£å¤šä¸ªè¿æ¥ï¼Œé»˜è®¤è®¾ç½®æ¯ä¸ªCPUæ ¸å¿ƒä¸€ä¸ªçº¿ç¨‹
+    worker-threads: 500       # é˜»å¡ä»»åŠ¡çº¿ç¨‹æ± ï¼Œå½“æ‰§è¡Œç±»ä¼¼servletè¯·æ±‚é˜»å¡æ“ä½œï¼Œundertowä¼šä»è¿™ä¸ªçº¿ç¨‹æ± ä¸­å–å¾—çº¿ç¨‹ï¼Œå®ƒçš„å€¼è®¾ç½®å–å†³äºç³»ç»Ÿçš„è´Ÿè½½
+    buffer-size: 1024         # ä»¥ä¸‹çš„é…ç½®ä¼šå½±å“bufferï¼Œè¿™äº›bufferä¼šç”¨äºæœåŠ¡å™¨è¿æ¥çš„IOæ“ä½œ,æ¯å—bufferçš„ç©ºé—´å¤§å°ï¼Œè¶Šå°çš„ç©ºé—´è¢«åˆ©ç”¨è¶Šå……åˆ†
+    direct-buffers: true      # æ˜¯å¦åˆ†é…çš„ç›´æ¥å†…å­˜
 shine:
   mq:
     rabbit:
-      listener-enable: true  # Èô·şÎñµ¥µ¥Ö»ÊÇÏûÏ¢Éú²úÕß¿ÉÒÔÉèÎªfalse
+      listener-enable: true  # è‹¥æœåŠ¡å•å•åªæ˜¯æ¶ˆæ¯ç”Ÿäº§è€…å¯ä»¥è®¾ä¸ºfalse

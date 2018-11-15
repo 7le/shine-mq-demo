@@ -1,6 +1,5 @@
 package top.arkstack.shine.mq.demo;
 
-
 import com.rabbitmq.client.Channel;
 import org.springframework.amqp.core.Message;
 import org.springframework.beans.factory.annotation.Autowired;
