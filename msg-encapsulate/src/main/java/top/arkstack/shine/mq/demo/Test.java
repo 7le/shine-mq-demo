@@ -18,7 +18,7 @@ public class Test {
     @PostConstruct
     public void test() throws Exception {
         factory.add("shine-queue", "shine-exchange", "shine",
-                new ProcessorTest(), null);
+                new ProcessorTest());
         for (int i = 0; i < 10; i++) {
             factory.getTemplate().send("shine-exchange", "shine " + i, "shine");
         }
