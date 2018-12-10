@@ -4,7 +4,12 @@
 
 ### 🎈 分布式事务（基于可靠消息服务）
 
-[分布式事务-demo](https://github.com/7le/shine-mq-demo/tree/master/distributed-transaction)
+> 分布式事务demo
+
+[服务A](https://github.com/7le/shine-mq-demo/tree/master/distributed-transaction)
+
+[服务B](https://github.com/7le/shine-mq-demo/tree/master/distributed-transaction-consumer)
+
 
 ### 🎐 mq操作封装
 

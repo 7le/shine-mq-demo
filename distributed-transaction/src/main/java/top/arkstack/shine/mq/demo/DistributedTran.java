@@ -11,7 +11,10 @@ import top.arkstack.shine.mq.annotation.DistributedTrans;
 @Component
 public class DistributedTran {
 
-    @DistributedTrans(exchange = "dis_test", routeKey = "dis_test", bizId = "ccc", coordinator = "redisCoordinator")
+    /**
+     * 服务A 的任务
+     */
+    @DistributedTrans(exchange = "dis_test", routeKey = "dis_test_key", bizId = "ccc", coordinator = "redisCoordinator")
     public String transaction() {
         System.out.println("DistributedTran");
         return "DistributedTran";

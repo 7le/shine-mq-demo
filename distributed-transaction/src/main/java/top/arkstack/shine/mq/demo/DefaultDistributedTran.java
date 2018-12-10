@@ -11,6 +11,9 @@ import top.arkstack.shine.mq.annotation.DistributedTrans;
 @Component
 public class DefaultDistributedTran {
 
+    /**
+     * 服务A 的任务
+     */
     @DistributedTrans
     public String transaction(){
         System.out.println("DefaultDistributedTran");

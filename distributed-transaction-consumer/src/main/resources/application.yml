@@ -1,10 +1,14 @@
 spring:
   application:
-    name: msg-encapsulate
+    name: distributed-transaction-consumer
   rabbitmq:
     host: 127.0.0.1
+  redis:
+    timeout: 0
+    host: 127.0.0.1
+    database: 0
 server:
-  port: 5000
+  port: 4000
   undertow:
     accesslog:
       dir: /logs              # Undertow 日志存放目录
@@ -19,5 +23,7 @@ server:
     direct-buffers: true      # 是否分配的直接内存
 shine:
   mq:
+    distributed:
+      transaction: true
     rabbit:
-      listener-enable: true  # 若服务单单只是消息生产者可以设为false
+      listener-enable: true

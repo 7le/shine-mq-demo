@@ -1,6 +1,6 @@
 spring:
   application:
-    name: shine-mq-demo
+    name: distributed-transaction
   rabbitmq:
     host: 127.0.0.1
   redis:
@@ -8,7 +8,7 @@ spring:
     host: 127.0.0.1
     database: 0
 server:
-  port: 5000
+  port: 3000
   undertow:
     accesslog:
       dir: /logs              # Undertow 日志存放目录
@@ -25,5 +25,3 @@ shine:
   mq:
     distributed:
       transaction: true
-    rabbit:
-      listener-enable: true  # 若服务单单只是消息生产者可以设为false
