@@ -29,6 +29,10 @@ public String transaction() {
     return "DistributedTran";
 }
 ```
+这里通过设置回查id，来保证服务A任务的原子性。
+
+具体流程如图：
+![shine-mq](https://github.com/7le/7le.github.io/raw/master/image/dis/shine-mq.jpg)
 
 服务B戳 [服务B](https://github.com/7le/shine-mq-demo/tree/master/distributed-transaction-consumer)
 
