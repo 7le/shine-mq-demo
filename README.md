@@ -17,6 +17,19 @@ shine:
 
 服务A戳 [服务A](https://github.com/7le/shine-mq-demo/tree/master/distributed-transaction)
 
+```
+/**
+ * 服务A 的任务
+ */
+@DistributedTrans(exchange = "dis_test", routeKey = "dis_test_key", bizId = "ccc", coordinator = "redisCoordinator")
+public String transaction() {
+    //设置回查id 需要唯一 以防出现错误
+    String checkBackId="123456789";
+    coordinator.setPrepare(checkBackId);
+    return "DistributedTran";
+}
+```
+
 服务B戳 [服务B](https://github.com/7le/shine-mq-demo/tree/master/distributed-transaction-consumer)
 
 ### 🎐 mq操作封装
