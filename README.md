@@ -15,7 +15,9 @@ shine:
       transaction: true
 ```
 
-服务A戳 [服务A](https://github.com/7le/shine-mq-demo/tree/master/distributed-transaction)
+[服务A](https://github.com/7le/shine-mq-demo/tree/master/distributed-transaction)
+
+``@DistributedTrans``注解可以保证消息可靠发布到MQ中。例子如下：
 
 ```
 /**
@@ -29,29 +31,32 @@ public String transaction() {
     return "DistributedTran";
 }
 ```
-这里通过设置回查id，来保证服务A任务的原子性。
+> 这里通过设置回查id，来保证服务A任务的原子性。
+
+另外**shime-mq**会在初始化设置了**setConfirmCallback**，如果需要自定义消息发送到MQ后的回调可以自行实现``Coordinator``的``confirmCallback``接口。
 
 具体流程如图：
 ![shine-mq](https://github.com/7le/7le.github.io/raw/master/image/dis/shine-mq.jpg)
 
-服务B戳 [服务B](https://github.com/7le/shine-mq-demo/tree/master/distributed-transaction-consumer)
+[服务B](https://github.com/7le/shine-mq-demo/tree/master/distributed-transaction-consumer)
 
 ### 🎐 mq操作封装
 
 #### Producer Consumer 在不同服务
 
-生产者戳 [Producer](https://github.com/7le/shine-mq-demo/tree/master/msg-encapsulate-1)
+[Producer](https://github.com/7le/shine-mq-demo/tree/master/msg-encapsulate-1)
 
-需要在消费者的服务配置
+需要在消费者的服务配置:
+
 ```
 shine:
   mq:
     rabbit:
       listener-enable: true  # 若服务单单只是消息生产者可以设为false
 ```
-消费者戳 [Consumer](https://github.com/7le/shine-mq-demo/tree/master/msg-encapsulate-2)
+[Consumer](https://github.com/7le/shine-mq-demo/tree/master/msg-encapsulate-2)
 
 #### Producer Consumer 在同一服务
 
-生产者&消费者戳 [Producer&Consumer](https://github.com/7le/shine-mq-demo/tree/master/msg-encapsulate)
+[Producer&Consumer](https://github.com/7le/shine-mq-demo/tree/master/msg-encapsulate)
 
