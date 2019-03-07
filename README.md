@@ -24,11 +24,12 @@ shine:
  * 服务A 的任务
  */
 @DistributedTrans(exchange = "dis_test", routeKey = "dis_test_key", bizId = "ccc", coordinator = "redisCoordinator")
-public String transaction() {
+public TransferBean transaction() {
     //设置回查id 需要唯一 以防出现错误
     String checkBackId="123456789";
     coordinator.setPrepare(checkBackId);
-    return "DistributedTran";
+    //需要用TransferBean包装下，checkBackId是必须的，data可以为null
+    return new TransferBean(checkBackId,"所需要传输的数据");
 }
 ```
 > 这里通过设置回查id，来保证服务A任务的原子性。

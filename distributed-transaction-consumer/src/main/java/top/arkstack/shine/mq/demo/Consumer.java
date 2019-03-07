@@ -34,12 +34,13 @@ public class Consumer {
 
     /**
      * 服务B
+     * @see top.arkstack.shine.mq.bean.TransferBean
      */
     static class ProcessorTest extends BaseProcessor {
 
         @Override
         public Object process(Object msg, Message message, Channel channel) {
-            //执行服务B的任务
+            //执行服务B的任务  这里可以讲msg转成TransferBean
             System.out.println("No1 distributed transaction process: " + msg);
             int a = 1 / 0;
             //分布式事务消息默认自动回执
