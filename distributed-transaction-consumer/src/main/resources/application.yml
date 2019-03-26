@@ -27,3 +27,4 @@ shine:
       transaction: true
     rabbit:
       listener-enable: true
+      consumers-per-queue: 2  #可以每条队列线程并发数
