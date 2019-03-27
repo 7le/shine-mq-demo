@@ -8,9 +8,9 @@ spring:
     host: 127.0.0.1
     database: 0
   datasource:
-    url: jdbc:mysql://127.0.0.1:4000/shine?useUnicode=true&characterEncoding=utf-8&useSSL=true
-    username: root
-    password: 123456
+    url: jdbc:mysql://10.33.25.160:4000/shine?useUnicode=true&characterEncoding=utf-8&useSSL=true
+    username: hikvision
+    password: hikvision
     driver-class-name: com.mysql.jdbc.Driver
 mybatis:
   mapper-locations: classpath:mapping/*.xml

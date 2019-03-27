@@ -6,6 +6,10 @@ import org.springframework.stereotype.Component;
 import top.arkstack.shine.mq.RabbitmqFactory;
 import javax.annotation.PostConstruct;
 
+/**
+ * @author 7le
+ * @version 1.0.0
+ */
 @Component
 public class Producer {
 
@@ -18,7 +22,7 @@ public class Producer {
     @PostConstruct
     public void test() throws Exception {
         //服务A 执行任务
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 1; i++) {
             distributedTran.transaction();
         }
     }
