@@ -43,7 +43,7 @@ public class DistributedTran {
         RouteConfig routeConfig = new RouteConfig(checkBackId, "/shine/**", "spring-mq",
                 null, false, true, true, null);
         mapper.insert(routeConfig);
-        //用来模拟任务A成功，但是没有投递到mq
+        //用来模拟任务A成功，但是没有投递到mq(就是测试prepare消息的补偿)
         //int i = 1 / 0;
         //需要用TransferBean包装下，checkBackId是必须的，data可以为null
         return new TransferBean(checkBackId.toString(), routeConfig.getPath());

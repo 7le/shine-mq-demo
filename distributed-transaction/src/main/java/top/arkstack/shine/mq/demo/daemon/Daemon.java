@@ -6,6 +6,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import top.arkstack.shine.mq.bean.EventMessage;
 import top.arkstack.shine.mq.bean.PrepareMessage;
+import top.arkstack.shine.mq.bean.TransferBean;
 import top.arkstack.shine.mq.coordinator.Coordinator;
 import top.arkstack.shine.mq.demo.dao.RouteConfigMapper;
 import top.arkstack.shine.mq.demo.dao.model.RouteConfig;
@@ -44,12 +45,14 @@ public class Daemon {
                     if (Objects.isNull(config)) {
                         log.info("服务A中任务并没有完成，CheckBackId:{}", p);
                         //因为服务A的任务没有完成，所以这次操作就是失败了，可以记录下日志，这时候数据是一致的
+                        coordinator.delPrepare(p.getCheckBackId());
                     } else {
                         log.info("服务A中任务已经完成，CheckBackId:{}", p);
                         //服务A的任务已经完成，但是prepare消息没被删除，说明投递到mq失败了，那就继续进行投递或者将任务回滚
                         try {
-                            //如果要任务回滚，可以按照业务自行回滚，如果进行投递,有需要传递信息，则需要重新加上
-                            p.setData(config.getPath());
+                            //如果要任务回滚，可以按照业务自行回滚
+                            //如果进行投递,有需要传递信息，则需要重新加上，这里演示继续投递，模拟之前的data
+                            p.setData(new TransferBean(p.getCheckBackId(), config.getPath()));
                             coordinator.compensatePrepare(p);
                         } catch (Exception e) {
                             e.printStackTrace();
