@@ -2,6 +2,7 @@ package top.arkstack.shine.mq.demo.producer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.arkstack.shine.mq.annotation.DistributedTrans;
 import top.arkstack.shine.mq.bean.PrepareMessage;
 import top.arkstack.shine.mq.bean.TransferBean;
@@ -32,6 +33,7 @@ public class DistributedTran {
      */
     @DistributedTrans(exchange = "route_config", routeKey = "route_config_key", bizId = "route_config",
             coordinator = "redisCoordinator")
+    //@Transactional(rollbackFor = Exception.class)
     public TransferBean transaction() {
         //设置回查id 需要唯一 （可以用数据库的id） 以防出现错误，
         Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
