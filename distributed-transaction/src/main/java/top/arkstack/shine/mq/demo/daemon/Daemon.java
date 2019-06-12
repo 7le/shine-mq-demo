@@ -36,7 +36,7 @@ public class Daemon {
     @Autowired
     private RedisUtil redisUtil;
 
-    @Scheduled(initialDelay = 5_000, fixedRate = 5_000)
+    @Scheduled(initialDelay = 5_000, fixedRate = 30_000)
     public void process() {
         try {
             //处理Prepare消息 如果在集群情况下，是有可能出现重复消息的，这里演示使用分布式锁
@@ -68,18 +68,22 @@ public class Daemon {
                 return null;
             });
             //处理ready消息
-            List<EventMessage> ready = coordinator.getReady();
-            if (!Objects.isNull(ready) && ready.size() > 0) {
-                ready.forEach(r -> {
-                    //超时的ready的消息，就直接捞起发送到消息中间件，因为只要是ready消息持久化到协调者，那就说明服务A的任务已经完成。
-                    try {
-                        coordinator.compensateReady(r);
-                        log.info("重新投递消息： {}", r);
-                    } catch (Exception e) {
-                        log.error("Message failed to be sent : ", e);
-                    }
-                });
-            }
+            redisUtil.lock("redis_lock_ready", 90_000L, () -> {
+                List<EventMessage> ready = coordinator.getReady();
+                if (!Objects.isNull(ready) && ready.size() > 0) {
+                    ready.forEach(r -> {
+                        //超时的ready的消息，就直接捞起发送到消息中间件，因为只要是ready消息持久化到协调者，那就说明服务A的任务已经完成。
+                        //因为消息到mq是异步通知的，所以补偿的频率过高会造成消息重复，下游服务最好能保证幂等性
+                        try {
+                            coordinator.compensateReady(r);
+                            log.info("重新投递消息： {}", r);
+                        } catch (Exception e) {
+                            log.error("Message failed to be sent : ", e);
+                        }
+                    });
+                }
+                return null;
+            });
         } catch (Exception e) {
             log.error("daemon process error: ", e);
         }
