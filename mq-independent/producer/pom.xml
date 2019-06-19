@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.arkstack.shine.mq.demo</groupId>
-    <artifactId>msg-encapsulate-2</artifactId>
+    <artifactId>producer</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>msg-encapsulate-2</name>
+    <name>producer</name>
     <description>Demo project for Shine-mq message encapsulate</description>
 
     <parent>

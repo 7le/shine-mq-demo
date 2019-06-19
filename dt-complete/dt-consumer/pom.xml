@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.arkstack.shine.mq.demo</groupId>
-    <artifactId>msg-encapsulate-1</artifactId>
+    <artifactId>dt-consumer</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>msg-encapsulate-1</name>
-    <description>Demo project for Shine-mq message encapsulate</description>
+    <name>dt-consumer</name>
+    <description>Shine-mq distributed transaction demo</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -126,5 +126,6 @@
             </plugin>
         </plugins>
     </build>
+
 
 </project>

@@ -44,8 +44,8 @@ public class Daemon {
                 List<PrepareMessage> prepare = coordinator.getPrepare();
                 if (!Objects.isNull(prepare) && prepare.size() > 0) {
                     prepare.forEach(p -> {
-                        //这里是用数据库id为回查id，这样就可以根据是否有这条记录来判断服务A的任务是否已经完成
-                        //可以根据自己的业务场景采用其他方式，比如用缓存来缓存状态之类的
+                        //可以首先根据p.getBizId()获取业务id进行分类
+                        //再根据回查id（这里是用数据库id，可以根据自己的业务场景采用其他方式）查询服务A的该任务是否已经完成，
                         RouteConfig config = mapper.selectByPrimaryKey(Long.valueOf(p.getCheckBackId()));
                         if (Objects.isNull(config)) {
                             log.info("服务A中任务并没有完成，CheckBackId:{}", p);
