@@ -15,7 +15,7 @@ shine:
       transaction: true
 ```
 
-#### complete
+#### Complete
 
 在**上游服务（消息生产者）**使用``@DistributedTrans``注解可以开启分布式事务(支持与Spring的``@Transactional``共用)，具体如下：
 
@@ -51,13 +51,13 @@ public TransferBean transaction() {
 具体流程如图：
 ![shine-mq](https://github.com/7le/7le.github.io/raw/master/image/dis/shine-mq.jpg)
 
-#### simple
+#### Simple
 
 > 简单版主要是省去了回查机制，可以灵活搭配其他的补偿方式来增加消息的可靠性，更方便集成和使用。不搭配也可以直接使用，只是会有小概率的消息丢失，基本满足一些业务场景了。
 
 ### 🎐 mq操作封装
 
-#### independent
+#### Independent
 
 > 生产者和消费者在不同的服务内
 
@@ -70,7 +70,7 @@ shine:
       listener-enable: true  # 若服务单单只是消息生产者可以设为false，默认为false
 ```
 
-#### mixed
+#### Mixed
 
 > 生产者和消费者在同一个服务
 
