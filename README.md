@@ -48,6 +48,52 @@ public TransferBean transaction() {
 
 另外``shine-mq``会在初始化设置**setConfirmCallback**，如果需要自定义消息发送到MQ后的回调，可以自行实现``Coordinator``的``confirmCallback``接口。
 
+在下游服务，配置对应上游服务的队列和一条死信队列。
+```
+@PostConstruct
+public void test() {
+    //服务B 配置消费者
+    factory.addDLX("route_config", "route_config",
+            "route_config_key", new ProcessorTest(), SendTypeEnum.DISTRIBUTED);
+
+    //配置死信队列 失败时候处理
+    factory.add(MqConstant.DEAD_LETTER_QUEUE, MqConstant.DEAD_LETTER_EXCHANGE,
+            MqConstant.DEAD_LETTER_ROUTEKEY, new ProcessorException(), SendTypeEnum.DLX);
+}
+
+/**
+ * 服务B 执行分布式事务
+ */
+static class ProcessorTest extends BaseProcessor {
+
+    @Override
+    public Object process(Object msg, Message message, Channel channel) {
+        //执行服务B的任务  这里可以将msg转成TransferBean
+        if (!Objects.isNull(msg)) {
+            TransferBean bean = JSONObject.parseObject(msg.toString(), TransferBean.class);
+            //这里就可以处理服务B的任务了
+            log.info("(Route_config) Process task B : {}", bean.getData());
+            log.info("(Route_config) CheckBackId : {}", bean.getCheckBackId());
+        }
+        //分布式事务消息默认自动回执
+        return null;
+    }
+}
+
+/**
+ * 处理异常
+ */
+static class ProcessorException extends BaseProcessor {
+
+    @Override
+    public Object process(Object msg, Message message, Channel channel) {
+        //执行失败的任务，可以自行实现 通知人工处理 或者回调原服务A的回滚接口
+        log.info("自行实现 通知人工处理 或者回调原服务A的回滚接口：" + msg);
+        return null;
+    }
+}
+```
+
 具体流程如图：
 ![shine-mq](https://github.com/7le/7le.github.io/raw/master/image/dis/shine-mq.jpg)
 
