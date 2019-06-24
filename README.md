@@ -15,7 +15,7 @@ shine:
       transaction: true
 ```
 
-#### Complete
+#### [Complete](https://github.com/7le/shine-mq-demo/tree/master/dt-complete)
 
 在**上游服务（消息生产者）**使用``@DistributedTrans``注解可以开启分布式事务(支持与Spring的``@Transactional``共用)，具体如下：
 
@@ -43,7 +43,7 @@ public TransferBean transaction() {
     return new TransferBean(checkBackId.toString(), routeConfig.getPath());
 }
 ```
-> 这里通过设置回查id，来保证服务A任务的原子性。demo中用定时任务（也可以其他方式）实现回查，具体可以看[daemon](https://github.com/7le/shine-mq-demo/blob/master/distributed-transaction/src/main/java/top/arkstack/shine/mq/demo/daemon/Daemon.java)。
+> 这里通过设置回查id，来保证服务A任务的原子性。demo中用定时任务（也可以其他方式）实现回查，具体可以看[daemon](https://github.com/7le/shine-mq-demo/blob/master/dt-complete/dt-producer/src/main/java/top/arkstack/shine/mq/demo/daemon/Daemon.java)。
 
 
 另外``shine-mq``会在初始化设置**setConfirmCallback**，如果需要自定义消息发送到MQ后的回调，可以自行实现``Coordinator``的``confirmCallback``接口。
@@ -97,13 +97,13 @@ static class ProcessorException extends BaseProcessor {
 具体流程如图：
 ![shine-mq](https://github.com/7le/7le.github.io/raw/master/image/dis/shine-mq.jpg)
 
-#### Simple
+#### [Simple](https://github.com/7le/shine-mq-demo/tree/master/dt-simple)
 
 > 简单版主要是省去了回查机制，可以灵活搭配其他的补偿方式来增加消息的可靠性，更方便集成和使用。不搭配也可以直接使用，只是会有小概率的消息丢失，基本满足一些业务场景了。
 
 ### 🎐 mq操作封装
 
-#### Independent
+#### [Independent](https://github.com/7le/shine-mq-demo/tree/master/mq-independent)
 
 > 生产者和消费者在不同的服务内
 
@@ -116,7 +116,7 @@ shine:
       listener-enable: true  # 若服务单单只是消息生产者可以设为false，默认为false
 ```
 
-#### Mixed
+#### [Mixed](https://github.com/7le/shine-mq-demo/tree/master/mq-mixed/mixed)
 
 > 生产者和消费者在同一个服务
 
