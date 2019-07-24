@@ -8,7 +8,7 @@
 
 使用分布式事务（注解``@DistributedTrans``），需要开启配置：
 
-```
+```java
 shine:
   mq:
     distributed:
@@ -19,14 +19,16 @@ shine:
 
 在**上游服务（消息生产者）**使用``@DistributedTrans``注解可以开启分布式事务(支持与Spring的``@Transactional``共用)，具体如下：
 
-```
+```java
 /**
  * 服务A 的任务
  * <p>
  * coordinator 可以自行实现，或者使用默认提供的
+ * 注解@DistributedTrans可以和@Transactional共用
  */
 @DistributedTrans(exchange = "route_config", routeKey = "route_config_key", bizId = "route_config",
         coordinator = "redisCoordinator")
+@Transactional(rollbackFor = Exception.class)
 public TransferBean transaction() {
     //设置回查id 需要唯一 （可以用数据库的id） 以防出现错误，
     Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
@@ -49,7 +51,7 @@ public TransferBean transaction() {
 另外``shine-mq``会在初始化设置**setConfirmCallback**，如果需要自定义消息发送到MQ后的回调，可以自行实现``Coordinator``的``confirmCallback``接口。
 
 在下游服务，配置对应上游服务的队列和一条死信队列。
-```
+```java
 @PostConstruct
 public void test() {
     //服务B 配置消费者
@@ -99,7 +101,29 @@ static class ProcessorException extends BaseProcessor {
 
 #### [Simple](https://github.com/7le/shine-mq-demo/tree/master/dt-simple)
 
-> 简单版主要是省去了回查机制，可以灵活搭配其他的补偿方式来增加消息的可靠性，更方便集成和使用。不搭配也可以直接使用，只是会有小概率的消息丢失，基本满足一些业务场景了。
+> 简单版主要是省去了回查机制，可以灵活搭配其他的补偿方式来增加消息的可靠性，更方便集成和使用。不搭配也可以直接使用，只是会有小概率的消息丢失(可能会在任务A处理完任务，发送ready消息到Coordinator的时候出现异常或者宕机，导致出现不一致)，基本可以忽略不计，完全可以满足一般业务场景了。
+
+消费者跟complete相同，生产者简化如下：
+```java
+/**
+* 服务A 的任务
+* <p>
+* coordinator 可以自行实现，或者使用默认提供的
+* 注解@DistributedTrans可以和@Transactional共用
+*/
+@DistributedTrans(exchange = "simple_route_config", routeKey = "simple_route_config_key", bizId = "simple_route_config")
+@Transactional(rollbackFor = Exception.class)
+public TransferBean transaction() {
+    //simple 不校验服务A的状态 可以不设置Prepare状态
+    Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
+    //执行操作
+    RouteConfig routeConfig = new RouteConfig(checkBackId,
+            "/shine/simple/**", "spring-mq-simple", null, false, true,
+            true, null);
+    mapper.insert(routeConfig);
+    return new TransferBean(checkBackId.toString(), routeConfig.getPath());
+}
+```
 
 ### 🎐 mq操作封装
 
@@ -109,7 +133,7 @@ static class ProcessorException extends BaseProcessor {
 
 需要在消费者的服务配置:
 
-```
+```java
 shine:
   mq:
     rabbit:
@@ -122,7 +146,7 @@ shine:
 
 当生产者和消费者在同一个服务，需要设置：
 
-```
+```java
 shine:
   mq:
     rabbit:
