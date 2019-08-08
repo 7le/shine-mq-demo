@@ -2,6 +2,7 @@ package top.arkstack.shine.mq.demo.simple.producer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import top.arkstack.shine.mq.annotation.DistributedTrans;
 import top.arkstack.shine.mq.bean.TransferBean;
 import top.arkstack.shine.mq.coordinator.Coordinator;
@@ -31,6 +32,7 @@ public class DistributedTran {
      * 注解@DistributedTrans可以和@Transactional共用
      */
     @DistributedTrans(exchange = "simple_route_config", routeKey = "simple_route_config_key", bizId = "simple_route_config")
+    @Transactional(rollbackFor = Exception.class)
     public TransferBean transaction() {
         //simple 不校验服务A的状态 可以不设置Prepare状态
         Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
