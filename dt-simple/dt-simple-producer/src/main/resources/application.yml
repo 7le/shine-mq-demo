@@ -32,3 +32,5 @@ shine:
   mq:
     distributed:
       transaction: true
+      redis-prefix: simple_  #可以自定义redis前缀
+
