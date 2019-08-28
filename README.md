@@ -1,12 +1,14 @@
 # shine-mq-demo 
 
-> [shine-mq](https://github.com/7le/shine-mq) 演示demo 🎥
+> [shine-mq](https://github.com/7le/shine-mq) demo 🎥
 
-### 🎈 分布式事务（基于可靠消息服务）
+English | [简体中文](./README-zh_CN.md)
 
-> 分布式事务demo
+### 🎈 Distributed transaction (based on reliable messaging service)
 
-使用分布式事务（注解``@DistributedTrans``），需要开启配置：
+> Distributed transaction demo
+
+To use a distributed transaction (annotation ``@DistributedTrans``), you need to enable the configuration:
 
 ```java
 shine:
@@ -17,7 +19,7 @@ shine:
 
 #### [Complete](https://github.com/7le/shine-mq-demo/tree/master/dt-complete)
 
-在**上游服务（消息生产者）**使用``@DistributedTrans``注解可以开启分布式事务(支持与Spring的``@Transactional``共用)，具体如下：
+In the ** upstream service (message producer)** use the ``@DistributedTrans`` annotation to enable distributed transactions (supported with Spring's ``@Transactional``), as follows:
 
 ```java
 /**
@@ -30,80 +32,80 @@ shine:
         coordinator = "redisCoordinator")
 @Transactional(rollbackFor = Exception.class)
 public TransferBean transaction() {
-    //设置回查id 需要唯一 （可以用数据库的id） 以防出现错误，
+    //Setting the check back id needs to be unique (you can use the id of the database) to prevent errors.
     Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
-    //prepare需要checkBackId（回查id）来查询服务A任务状态，bizId,exchangeName和routingKey是重发的必要信息
+    //Prepare needs check back id to query service A task status, bizId, exchangeName and routingKey are necessary information for resending
     coordinator.setPrepare(new PrepareMessage(checkBackId.toString(), "route_config",
             "route_config", "route_config_key"
-    //执行操作
+    //Performing operations
     RouteConfig routeConfig = new RouteConfig(checkBackId, "/shine/**", "spring-mq",
             null, false, true, true, null);
     mapper.insert(routeConfig);
-    //用来模拟任务A成功，但是没有投递到mq(就是测试prepare消息的补偿)
+    //Used to simulate the success of task A, but not delivered to mq (that is, the compensation for testing the prepare message)
     //int i = 1 / 0;
-    //需要用TransferBean包装下，checkBackId是必须的，data可以为null
+    //Need to use the TransferBean wrapper, checkBackId is required, data can be null
     return new TransferBean(checkBackId.toString(), routeConfig.getPath());
 }
 ```
-> 这里通过设置回查id，来保证服务A任务的原子性。demo中用定时任务（也可以其他方式）实现回查，具体可以看[daemon](https://github.com/7le/shine-mq-demo/blob/master/dt-complete/dt-producer/src/main/java/top/arkstack/shine/mq/demo/daemon/Daemon.java)。
+> Here, by setting the check id, the atomicity of the service A task is guaranteed. The demo can use the timed task (other ways) to implement the check back.[Daemon](https://github.com/7le/shine-mq-demo/blob/master/dt-complete/dt-producer/src/main/java/top/arkstack/shine/mq/demo/daemon/Daemon.java)。
 
 
-另外``shine-mq``会在初始化设置**setConfirmCallback**，如果需要自定义消息发送到MQ后的回调，可以自行实现``Coordinator``的``confirmCallback``接口。
+In addition ``shine-mq`` will be initialized in the settings **setConfirmCallback**, if you need to send a custom message to the callback after the MQ, you can implement the ``Coordinator`` ``confirmCallback`` interface.
 
-在下游服务，配置对应上游服务的队列和一条死信队列。
+In the downstream service, configure the queue corresponding to the upstream service and a dead letter queue.
 ```java
 @PostConstruct
 public void test() {
-    //服务B 配置消费者
+    //Service B configuration consumer
     factory.addDLX("route_config", "route_config",
             "route_config_key", new ProcessorTest(), SendTypeEnum.DISTRIBUTED);
 
-    //配置死信队列 失败时候处理
+    //Configure the dead letter queue to handle when it fails.
     factory.add(MqConstant.DEAD_LETTER_QUEUE, MqConstant.DEAD_LETTER_EXCHANGE,
             MqConstant.DEAD_LETTER_ROUTEKEY, new ProcessorException(), SendTypeEnum.DLX);
 }
 
 /**
- * 服务B 执行分布式事务
+ * Service B performs distributed transactions
  */
 static class ProcessorTest extends BaseProcessor {
 
     @Override
     public Object process(Object msg, Message message, Channel channel) {
-        //执行服务B的任务  这里可以将msg转成TransferBean
+        //Execute the task of service B. Here you can convert msg into TransferBean.
         if (!Objects.isNull(msg)) {
             TransferBean bean = JSONObject.parseObject(msg.toString(), TransferBean.class);
             //这里就可以处理服务B的任务了
             log.info("(Route_config) Process task B : {}", bean.getData());
             log.info("(Route_config) CheckBackId : {}", bean.getCheckBackId());
         }
-        //分布式事务消息默认自动回执
+        //Distributed transaction message default automatic receipt
         return null;
     }
 }
 
 /**
- * 处理异常
+ * Handling exceptions
  */
 static class ProcessorException extends BaseProcessor {
 
     @Override
     public Object process(Object msg, Message message, Channel channel) {
-        //执行失败的任务，可以自行实现 通知人工处理 或者回调原服务A的回滚接口
+        //If the failed task is executed, you can notify the manual processing or call back the original service A's rollback interface.
         log.info("自行实现 通知人工处理 或者回调原服务A的回滚接口：" + msg);
         return null;
     }
 }
 ```
 
-具体流程如图：
-![shine-mq](https://github.com/7le/7le.github.io/raw/master/image/dis/shine-mq.jpg)
+The specific process is as follows:
+![shine-mq](https://github.com/7le/7le.github.io/raw/master/image/dis/shine-mq_EN.jpg)
 
 #### [Simple](https://github.com/7le/shine-mq-demo/tree/master/dt-simple)
 
-> 简单版主要是省去了回查机制，可以灵活搭配其他的补偿方式来增加消息的可靠性，更方便集成和使用。不搭配也可以直接使用，只是会有小概率的消息丢失(可能会在任务A处理完任务，发送ready消息到Coordinator的时候出现异常或者宕机，导致出现不一致)，基本可以忽略不计，完全可以满足一般业务场景了。
+> The simple version mainly eliminates the checkback mechanism and can be flexibly combined with other compensation methods to increase the reliability of the message, which is more convenient for integration and use. If you don't match it, you can use it directly, but there will be a small probability of losing the message (may be done after Task A has finished processing the task, sending a ready message to the Coordinator when an exception or downtime occurs, resulting in inconsistency), which can be neglected. Meet the general business scenario.
 
-消费者跟complete相同，生产者简化如下：
+The consumer is the same as the complete, the producer is simplified as follows：
 ```java
 /**
 * 服务A 的任务
@@ -114,9 +116,9 @@ static class ProcessorException extends BaseProcessor {
 @DistributedTrans(exchange = "simple_route_config", routeKey = "simple_route_config_key", bizId = "simple_route_config")
 @Transactional(rollbackFor = Exception.class)
 public TransferBean transaction() {
-    //simple 不校验服务A的状态 可以不设置Prepare状态
+    //simple Do not verify the status of Service A. You may not set the Prepare status.
     Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
-    //执行操作
+    //Performing operations
     RouteConfig routeConfig = new RouteConfig(checkBackId,
             "/shine/simple/**", "spring-mq-simple", null, false, true,
             true, null);
@@ -125,30 +127,30 @@ public TransferBean transaction() {
 }
 ```
 
-### 🎐 mq操作封装
+### 🎐 Mq operation package
 
 #### [Independent](https://github.com/7le/shine-mq-demo/tree/master/mq-independent)
 
-> 生产者和消费者在不同的服务内
+> Producers and consumers in different services
 
-需要在消费者的服务配置:
+Need to be configured in the consumer's service:
 
 ```java
 shine:
   mq:
     rabbit:
-      listener-enable: true  # 若服务单单只是消息生产者可以设为false，默认为false
+      listener-enable: true  # If the service order is just the message producer can be set to false, the default is false
 ```
 
 #### [Mixed](https://github.com/7le/shine-mq-demo/tree/master/mq-mixed/mixed)
 
-> 生产者和消费者在同一个服务
+> Producer and consumer in the same service
 
-当生产者和消费者在同一个服务，需要设置：
+When the producer and the consumer are in the same service, they need to be set：
 
 ```java
 shine:
   mq:
     rabbit:
-      listener-enable: true  # 若服务单单只是消息生产者可以设为false，默认为false
+      listener-enable: true  # If the service order is just the message producer can be set to false, the default is false
 ```
