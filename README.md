@@ -25,8 +25,8 @@ In the ** upstream service (message producer)** use the ``@DistributedTrans`` an
 /**
  * Service A's task
  * <p>
- * Can be implemented by yourself, or by default
- * Note @DistributedTrans can be used with @Transactional
+ * Can be implemented by yourself, or by default.
+ * Annotation @DistributedTrans can be used with @Transactional
  */
 @DistributedTrans(exchange = "route_config", routeKey = "route_config_key", bizId = "route_config",
         coordinator = "redisCoordinator")
@@ -111,10 +111,10 @@ The specific process is as follows:
 The consumer is the same as the complete, the producer is simplified as follows：
 ```java
 /**
-* 服务A 的任务
-* <p>
-* coordinator 可以自行实现，或者使用默认提供的
-* 注解@DistributedTrans可以和@Transactional共用
+ * Service A's task
+ * <p>
+ * Can be implemented by yourself, or by default.
+ * Annotation @DistributedTrans can be used with @Transactional
 */
 @DistributedTrans(exchange = "simple_route_config", routeKey = "simple_route_config_key", bizId = "simple_route_config")
 @Transactional(rollbackFor = Exception.class)
