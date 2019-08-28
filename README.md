@@ -23,10 +23,10 @@ In the ** upstream service (message producer)** use the ``@DistributedTrans`` an
 
 ```java
 /**
- * 服务A 的任务
+ * Service A's task
  * <p>
- * coordinator 可以自行实现，或者使用默认提供的
- * 注解@DistributedTrans可以和@Transactional共用
+ * Can be implemented by yourself, or by default
+ * Note @DistributedTrans can be used with @Transactional
  */
 @DistributedTrans(exchange = "route_config", routeKey = "route_config_key", bizId = "route_config",
         coordinator = "redisCoordinator")
@@ -34,13 +34,16 @@ In the ** upstream service (message producer)** use the ``@DistributedTrans`` an
 public TransferBean transaction() {
     //Setting the check back id needs to be unique (you can use the id of the database) to prevent errors.
     Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
+    
     //Prepare needs check back id to query service A task status, bizId, exchangeName and routingKey are necessary information for resending
     coordinator.setPrepare(new PrepareMessage(checkBackId.toString(), "route_config",
-            "route_config", "route_config_key"
+            "route_config", "route_config_key"));
+    
     //Performing operations
     RouteConfig routeConfig = new RouteConfig(checkBackId, "/shine/**", "spring-mq",
             null, false, true, true, null);
     mapper.insert(routeConfig);
+    
     //Used to simulate the success of task A, but not delivered to mq (that is, the compensation for testing the prepare message)
     //int i = 1 / 0;
     //Need to use the TransferBean wrapper, checkBackId is required, data can be null
@@ -75,7 +78,7 @@ static class ProcessorTest extends BaseProcessor {
         //Execute the task of service B. Here you can convert msg into TransferBean.
         if (!Objects.isNull(msg)) {
             TransferBean bean = JSONObject.parseObject(msg.toString(), TransferBean.class);
-            //这里就可以处理服务B的任务了
+            //Here you can handle the task of Service B.
             log.info("(Route_config) Process task B : {}", bean.getData());
             log.info("(Route_config) CheckBackId : {}", bean.getCheckBackId());
         }
@@ -92,7 +95,7 @@ static class ProcessorException extends BaseProcessor {
     @Override
     public Object process(Object msg, Message message, Channel channel) {
         //If the failed task is executed, you can notify the manual processing or call back the original service A's rollback interface.
-        log.info("自行实现 通知人工处理 或者回调原服务A的回滚接口：" + msg);
+        log.info("Self-implementation Notification manual processing or callback of the original service A's rollback interface：" + msg);
         return null;
     }
 }
@@ -118,6 +121,7 @@ The consumer is the same as the complete, the producer is simplified as follows�
 public TransferBean transaction() {
     //simple Do not verify the status of Service A. You may not set the Prepare status.
     Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
+    
     //Performing operations
     RouteConfig routeConfig = new RouteConfig(checkBackId,
             "/shine/simple/**", "spring-mq-simple", null, false, true,

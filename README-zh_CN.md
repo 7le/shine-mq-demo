@@ -34,13 +34,16 @@ shine:
 public TransferBean transaction() {
     //设置回查id 需要唯一 （可以用数据库的id） 以防出现错误，
     Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
+    
     //prepare需要checkBackId（回查id）来查询服务A任务状态，bizId,exchangeName和routingKey是重发的必要信息
     coordinator.setPrepare(new PrepareMessage(checkBackId.toString(), "route_config",
-            "route_config", "route_config_key"
+            "route_config", "route_config_key"));
+    
     //执行操作
     RouteConfig routeConfig = new RouteConfig(checkBackId, "/shine/**", "spring-mq",
             null, false, true, true, null);
     mapper.insert(routeConfig);
+    
     //用来模拟任务A成功，但是没有投递到mq(就是测试prepare消息的补偿)
     //int i = 1 / 0;
     //需要用TransferBean包装下，checkBackId是必须的，data可以为null
@@ -118,6 +121,7 @@ static class ProcessorException extends BaseProcessor {
 public TransferBean transaction() {
     //simple 不校验服务A的状态 可以不设置Prepare状态
     Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
+    
     //执行操作
     RouteConfig routeConfig = new RouteConfig(checkBackId,
             "/shine/simple/**", "spring-mq-simple", null, false, true,
