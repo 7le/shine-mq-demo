@@ -19,7 +19,7 @@ shine:
 
 #### [Complete](https://github.com/7le/shine-mq-demo/tree/master/dt-complete)
 
-在**上游服务（消息生产者）**使用``@DistributedTrans``注解可以开启分布式事务(支持与Spring的``@Transactional``共用)，具体如下：
+在**上游服务**(消息生产者) 使用``@DistributedTrans``注解可以开启分布式事务(支持与Spring的``@Transactional``共用)，具体如下：
 
 ```java
 /**

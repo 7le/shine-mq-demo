@@ -19,7 +19,7 @@ shine:
 
 #### [Complete](https://github.com/7le/shine-mq-demo/tree/master/dt-complete)
 
-In the ** upstream service (message producer)** use the ``@DistributedTrans`` annotation to enable distributed transactions (supported with Spring's ``@Transactional``), as follows:
+In the **upstream service** (message producer) use the ``@DistributedTrans`` annotation to enable distributed transactions (supported with Spring's ``@Transactional``), as follows:
 
 ```java
 /**

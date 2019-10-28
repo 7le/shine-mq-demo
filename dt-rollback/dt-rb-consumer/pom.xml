@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>top.arkstack.shine.mq.demo</groupId>
-    <artifactId>dt-simple-consumer</artifactId>
+    <artifactId>dt-rb-consumer</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>dt-simple-consumer</name>
-    <description>Shine-mq distributed transaction demo</description>
+    <name>dt-rb-consumer</name>
+    <description>Shine-mq distributed transaction demo with rollback</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
