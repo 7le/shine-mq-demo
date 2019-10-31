@@ -31,7 +31,7 @@ public class Producer {
         for (int i = 0; i < 1; i++) {
             distributedTran.transaction();
         }
-        //增加对回归队列的监听
+        //增加对回滚队列的监听
         factory.add("route_config_rollback", "route_config",
                 "route_config_rollback", rollback, SendTypeEnum.ROLLBACK);
     }

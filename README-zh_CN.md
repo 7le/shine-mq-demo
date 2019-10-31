@@ -8,6 +8,12 @@
 
 > 分布式事务demo
 
+目前支持三种模式：
+
+* [Complete 完整模式](#Complete)
+* [Rollback 完整模式增加异常回滚](#Rollback)
+* [Simple 简单模式](#Simple)
+
 使用分布式事务（注解``@DistributedTrans``），需要开启配置：
 
 ```java
@@ -104,6 +110,61 @@ static class ProcessorException extends BaseProcessor {
 具体流程如图：
 ![shine-mq](https://github.com/7le/7le.github.io/raw/master/image/dis/shine-mq.jpg)
 
+#### [Rollback](https://github.com/7le/shine-mq-demo/tree/master/dt-rollback)
+
+在原先的Complete的基础上，增加了异常回滚功能，就是下游服务在处理分布式事务消息的时候出现异常，通过异常回滚将上游服务进行回滚。
+
+上游服务在使用``@DistributedTrans``的时候增加**rollback**
+
+```java
+/**
+ * 服务A 的任务
+ * <p>
+ * coordinator 可以自行实现，或者使用默认提供的
+ * 注解@DistributedTrans可以和@Transactional共用
+ */
+@DistributedTrans(exchange = "route_config", routeKey = "route_config_key", bizId = "route_config",
+        coordinator = "redisCoordinator", rollback = "route_config_rollback")
+@Transactional(rollbackFor = Exception.class)
+public TransferBean transaction() {
+    //设置回查id 需要唯一 （可以用数据库的id） 以防出现错误，
+    Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
+    
+    //prepare需要checkBackId（回查id）来查询服务A任务状态，bizId,exchangeName和routingKey是重发的必要信息
+    coordinator.setPrepare(new PrepareMessage(checkBackId.toString(), "route_config",
+            "route_config", "route_config_key"));
+    
+    //执行操作
+    RouteConfig routeConfig = new RouteConfig(checkBackId, "/shine/**", "spring-mq",
+            null, false, true, true, null);
+    mapper.insert(routeConfig);
+    
+    //用来模拟任务A成功，但是没有投递到mq(就是测试prepare消息的补偿)
+    //int i = 1 / 0;
+    //需要用TransferBean包装下，checkBackId是必须的，data可以为null
+    return new TransferBean(checkBackId.toString(), routeConfig.getPath());
+}
+
+```
+以及增加相应的队列监听：
+```java
+//增加对回滚队列的监听
+factory.add("route_config_rollback", "route_config",
+        "route_config_rollback", rollback, SendTypeEnum.ROLLBACK);
+```
+
+配置为：
+```java
+shine:
+  mq:
+    distributed:
+      transaction: true
+    rabbit:
+      listener-enable: true
+```
+
+而下游服务与[Complete](#Complete)模式使用的方式一样，其中回滚的消息使用``coordinator``做了保障，保证消息能可靠投递到队列，而异常回滚的消息的回执由使用者来控制。
+
 #### [Simple](https://github.com/7le/shine-mq-demo/tree/master/dt-simple)
 
 > 简单版主要是省去了回查机制，可以灵活搭配其他的补偿方式来增加消息的可靠性，更方便集成和使用。不搭配也可以直接使用，只是会有小概率的消息丢失(可能会在任务A处理完任务，发送ready消息到Coordinator的时候出现异常或者宕机，导致出现不一致)，基本可以忽略不计，完全可以满足一般业务场景了。
@@ -157,4 +218,4 @@ shine:
   mq:
     rabbit:
       listener-enable: true  # 若服务单单只是消息生产者可以设为false，默认为false
-```
+``` 

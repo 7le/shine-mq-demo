@@ -8,6 +8,12 @@ English | [简体中文](./README-zh_CN.md)
 
 > Distributed transaction demo
 
+Currently supports three modes:
+
+* [Complete : complete mode](#Complete)
+* [Rollback : complete mode with rollback](#Rollback)
+* [Simple : simple mode](#Simple)
+
 To use a distributed transaction (annotation ``@DistributedTrans``), you need to enable the configuration:
 
 ```java
@@ -103,6 +109,63 @@ static class ProcessorException extends BaseProcessor {
 
 The specific process is as follows:
 ![shine-mq](https://github.com/7le/7le.github.io/raw/master/image/dis/shine-mq_EN.jpg)
+
+#### [Rollback](https://github.com/7le/shine-mq-demo/tree/master/dt-rollback)
+
+Based on the original Complete mode, the abnormal rollback function has been added.
+
+The downstream service has an exception when processing distributed transaction messages, and the upstream service is rolled back through an abnormal rollback.
+
+The upstream service adds **rollback** when using ``@DistributedTrans``
+
+```java
+/**
+ * Service A's task
+ * <p>
+ * Can be implemented by yourself, or by default.
+ * Annotation @DistributedTrans can be used with @Transactional
+ */
+@DistributedTrans(exchange = "route_config", routeKey = "route_config_key", bizId = "route_config",
+        coordinator = "redisCoordinator", rollback = "route_config_rollback")
+@Transactional(rollbackFor = Exception.class)
+public TransferBean transaction() {
+    //Setting the check back id needs to be unique (you can use the id of the database) to prevent errors.
+    Long checkBackId = SnowflakeIdGenerator.getInstance().nextNormalId();
+    
+    //Prepare needs check back id to query service A task status, bizId, exchangeName and routingKey are necessary information for resending
+    coordinator.setPrepare(new PrepareMessage(checkBackId.toString(), "route_config",
+            "route_config", "route_config_key"));
+    
+    //Performing operations
+    RouteConfig routeConfig = new RouteConfig(checkBackId, "/shine/**", "spring-mq",
+            null, false, true, true, null);
+    mapper.insert(routeConfig);
+    
+    //Used to simulate the success of task A, but not delivered to mq (that is, the compensation for testing the prepare message)
+    //int i = 1 / 0;
+    //Need to use the TransferBean wrapper, checkBackId is required, data can be null
+    return new TransferBean(checkBackId.toString(), routeConfig.getPath());
+}
+```
+
+And increase the corresponding queue listener:
+```java
+//Increase the listener for the rollback queue
+factory.add("route_config_rollback", "route_config",
+        "route_config_rollback", rollback, SendTypeEnum.ROLLBACK);
+```
+
+Configured as
+```java
+shine:
+  mq:
+    distributed:
+      transaction: true
+    rabbit:
+      listener-enable: true
+```
+
+The downstream service is the same as the [Complete](#Complete) mode, in which the rollback message is guaranteed by ``coordinator``, ensuring that the message can be reliably delivered to the queue, and the receipt of the abnormally rolled back message is used. To control.
 
 #### [Simple](https://github.com/7le/shine-mq-demo/tree/master/dt-simple)
 
